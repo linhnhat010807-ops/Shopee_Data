@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+
+input_file = r"D:\NgonNguPython\20240121_shopee_sample_data (1).xlsx"
+output_file = r"D:\NgonNguPython\shopee_cleaned.xlsx"
+analysis_file = r"D:\NgonNguPython\shopee_cleaned_for_analysis.xlsx"
+
+df = pd.read_excel(input_file)
+
+# Bỏ các cột không cần thiết cho bài phân tích
+df = df.drop(
+    columns=["delivery", "desc", "specification", "timestamp"],
+    errors="ignore"
+)
+
+def to_number(value):
+    if pd.isna(value):
+        return np.nan
+
+    s = str(value).strip().lower().replace(",", "")
+
+    # Favorite (21.5k -> 21500)
+    if s.startswith("favorite"):
+        s = s.split("(", 1)[-1].rstrip(")")
+
+    s = s.replace("(", "").replace(")", "").strip()
+
+    # Chưa có đánh giá -> NaN
+    if s in ("", "nan", "no ratings yet"):
+        return np.nan
+
+    try:
+        if s.endswith("k"):
+            return float(s[:-1]) * 1000
+        return float(s)
+    except ValueError:
+        return np.nan
+
+# Chuyển các cột có dữ liệu dạng 8.1k, 6.5k,... thành số
+for col in ["item_rating", "total_rating", "total_sold", "favorite"]:
+    df[col] = df[col].map(to_number)
+
+# Lượt mua, lượt đánh giá, lượt yêu thích là số nguyên
+for col in ["total_rating", "total_sold", "favorite"]:
+    df[col] = df[col].round().astype("Int64")
+
+# Rating và giá là số
+df["item_rating"] = pd.to_numeric(df["item_rating"], errors="coerce")
+df["price_ori"] = pd.to_numeric(df["price_ori"], errors="coerce")
+df["price_actual"] = pd.to_numeric(df["price_actual"], errors="coerce")
+
+# Lưu bản làm sạch
+df.to_excel(output_file, index=False)
+
+# Bản dành cho phân tích chính: bỏ dòng thiếu dữ liệu ở các cột quan trọng
+analysis_cols = [
+    "price_ori", "price_actual", "item_rating",
+    "total_rating", "total_sold", "favorite",
+    "seller_name", "item_category_detail", "w_date"
+]
+df_analysis = df.dropna(subset=analysis_cols)
+df_analysis.to_excel(analysis_file, index=False)
+
+print("Đã làm sạch dữ liệu.")
+print("Số dòng bản gốc:", len(pd.read_excel(input_file)))
+print("Số dòng sau khi bỏ dòng thiếu dữ liệu phân tích:", len(df_analysis))
+print("Đã bỏ các cột không cần thiết và chuyển đổi dữ liệu dạng chuỗi sang số.")
