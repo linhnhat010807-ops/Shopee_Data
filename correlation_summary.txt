@@ -1,0 +1,2 @@
+Tương quan item_rating vs total_sold: 0.0129
+Tương quan total_rating vs total_sold: 1.0000
