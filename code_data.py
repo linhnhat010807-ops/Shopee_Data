@@ -16,16 +16,12 @@ from scipy import stats           # tính hệ số tương quan Pearson & Spear
  
 sns.set_theme(style="whitegrid")  # áp dụng theme nền lưới trắng cho toàn bộ biểu đồ trong file
  
-# ============================================================
 # 0. ĐỌC DỮ LIỆU
-# ============================================================
 FILE_PATH = "shopee_data_clean.xlsx"   # đường dẫn tới file dữ liệu, đổi lại nếu file ở vị trí khác
 df = pd.read_excel(FILE_PATH)          # đọc file Excel vào DataFrame df
 print("Số dòng, số cột ban đầu:", df.shape)   # in số dòng/cột để kiểm tra đã đọc đúng dữ liệu
- 
-# ============================================================
+
 # 1. LÀM SẠCH DỮ LIỆU CƠ BẢN
-# ============================================================
 # Loại các dòng có giá gốc <= 0 (không tính được % giảm giá)
 # và các dòng giá thực tế > giá gốc (dữ liệu lỗi, không phải khuyến mãi)
 df = df[(df["price_ori"] > 0) & (df["price_actual"] >= 0)].copy()
@@ -36,9 +32,7 @@ df = df[df["price_actual"] <= df["price_ori"]].copy()
 #   (nếu giá thực tế > giá gốc thì đây là dữ liệu lỗi, không phải "khuyến mãi" thật)
 print("Số dòng sau khi làm sạch:", df.shape)   # in lại số dòng còn lại sau khi lọc
  
-# ============================================================
 # 2. TÍNH SỐ TIỀN GIẢM & PHẦN TRĂM GIẢM GIÁ
-# ============================================================
 df["discount_amount"] = df["price_ori"] - df["price_actual"]
 # ↑ tạo cột mới = số tiền được giảm (giá gốc trừ giá thực tế)
  
@@ -57,9 +51,7 @@ print("\nThống kê % giảm giá:")
 print(df["discount_pct"].describe())
 # ↑ in thống kê mô tả (mean, std, min, max, các mốc phần trăm...) của cột % giảm giá
  
-# ============================================================
 # 3. SO SÁNH GIÁ GỐC VÀ GIÁ THỰC TẾ (tổng quan)
-# ============================================================
 summary_price = pd.DataFrame({
     "Giá gốc (price_ori)": df["price_ori"].describe(),
     "Giá thực tế (price_actual)": df["price_actual"].describe()
@@ -80,9 +72,7 @@ group_stats = df.groupby("discount_group", observed=True).agg(
 print("\n=== Số lượng bán trung bình theo nhóm mức giảm giá ===")
 print(group_stats)   # in bảng thống kê theo nhóm mức giảm giá
  
-# ============================================================
 # 4. PHÂN TÍCH TƯƠNG QUAN: % GIẢM GIÁ vs SỐ LƯỢNG BÁN
-# ============================================================
 corr_pearson, p_pearson = stats.pearsonr(df["discount_pct"], df["total_sold"])
 # ↑ tính hệ số tương quan Pearson (đo mối quan hệ TUYẾN TÍNH) giữa % giảm giá và số lượng bán,
 #   trả về hệ số r và p-value (p-value nhỏ nghĩa là mối quan hệ có ý nghĩa thống kê)
@@ -113,9 +103,7 @@ print(f"=> Nhận xét: % giảm giá và số lượng bán {nhan_xet}, xu hư�
       f"(Spearman r = {corr_spearman:.3f}).")
 # ↑ in câu nhận xét tổng hợp bằng tiếng Việt dựa trên 2 biến vừa tính ở trên
  
-# ============================================================
 # 5. TRỰC QUAN HÓA
-# ============================================================
  
 # ---------- HÌNH 1: lưới 2x2 tổng quan (giống layout yêu cầu) ----------
 fig, axes = plt.subplots(2, 2, figsize=(14, 10))
