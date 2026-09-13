@@ -19,19 +19,7 @@ sns.set_theme(style="whitegrid")  # áp dụng theme nền lưới trắng cho t
 # 0. ĐỌC DỮ LIỆU
 FILE_PATH = "shopee_data_clean.xlsx"   # đường dẫn tới file dữ liệu, đổi lại nếu file ở vị trí khác
 df = pd.read_excel(FILE_PATH)          # đọc file Excel vào DataFrame df
-print("Số dòng, số cột ban đầu:", df.shape)   # in số dòng/cột để kiểm tra đã đọc đúng dữ liệu
-
-# 1. LÀM SẠCH DỮ LIỆU CƠ BẢN
-# Loại các dòng có giá gốc <= 0 (không tính được % giảm giá)
-# và các dòng giá thực tế > giá gốc (dữ liệu lỗi, không phải khuyến mãi)
-df = df[(df["price_ori"] > 0) & (df["price_actual"] >= 0)].copy()
-# ↑ giữ lại dòng có price_ori > 0 (tránh chia cho 0 khi tính % giảm giá)
-#   và price_actual >= 0 (loại giá trị âm bất thường); .copy() để tránh cảnh báo SettingWithCopy
-df = df[df["price_actual"] <= df["price_ori"]].copy()
-# ↑ giữ lại dòng mà giá thực tế không lớn hơn giá gốc
-#   (nếu giá thực tế > giá gốc thì đây là dữ liệu lỗi, không phải "khuyến mãi" thật)
-print("Số dòng sau khi làm sạch:", df.shape)   # in lại số dòng còn lại sau khi lọc
- 
+print("Số dòng, số cột ban đầu:", df.shape)   # in số dòng/cột để kiểm tra đã đọc đúng dữ liệu 
 # 2. TÍNH SỐ TIỀN GIẢM & PHẦN TRĂM GIẢM GIÁ
 df["discount_amount"] = df["price_ori"] - df["price_actual"]
 # ↑ tạo cột mới = số tiền được giảm (giá gốc trừ giá thực tế)
