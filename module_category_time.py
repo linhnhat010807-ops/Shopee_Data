@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # 2. ĐỌC FILE DỮ LIỆU
 # ==============================
 
-file_path = "shopee_data_clean (1).xlsx"
+file_path = "shopee_data_clean.xlsx"
 
 df = pd.read_excel(file_path)
 
