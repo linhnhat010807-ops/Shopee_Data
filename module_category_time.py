@@ -1,14 +1,9 @@
-# ==============================
-# 1. IMPORT THƯ VIỆN
-# ==============================
+# 1. Import thư viện
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
-# ==============================
-# 2. HÀM XỬ LÝ CHÍNH (GỌI TỪ FILE TỔNG HỢP)
-# ==============================
+# 2. Hàm xử lí chính
 
 def process_category_time_module(df):
     df = df.copy()
@@ -37,7 +32,7 @@ def process_category_time_module(df):
 
     df["main_category"] = df["item_category_detail"].apply(get_main_category)
 
-    # --- 2.2 BIỂU ĐỒ 1: TOP 10 DANH MỤC ---
+    # BIỂU ĐỒ 1: TOP 10 DANH MỤC ---
     category_sales = (
         df.groupby("main_category")["total_sold"]
         .sum()
@@ -55,7 +50,7 @@ def process_category_time_module(df):
     plt.savefig("01_top_10_danh_muc.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # --- 2.3 BIỂU ĐỒ 2: TOP 10 SẢN PHẨM ---
+    # BIỂU ĐỒ 2: TOP 10 SẢN PHẨM ---
     product_sales = (
         df.groupby("title")["total_sold"]
         .sum()
@@ -86,7 +81,7 @@ def process_category_time_module(df):
     plt.savefig("02_top_10_san_pham.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # --- 2.4 BIỂU ĐỒ 3: XU HƯỚNG THEO THỜI GIAN ---
+    # BIỂU ĐỒ 3: XU HƯỚNG THEO THỜI GIAN ---
     daily_sales = (
         df.dropna(subset=["w_date"])
         .groupby("w_date")["total_sold"]
@@ -105,7 +100,7 @@ def process_category_time_module(df):
     plt.savefig("03_xu_huong_luong_ban.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # --- 2.5 BIỂU ĐỒ 4: TỶ TRỌNG TOP 10 DANH MỤC ---
+    # BIỂU ĐỒ 4: TỶ TRỌNG TOP 10 DANH MỤC ---
     top_10_categories = (
         df.groupby("main_category")["total_sold"]
         .sum()
@@ -125,5 +120,5 @@ def process_category_time_module(df):
     plt.savefig("04_ty_trong_top_10_danh_muc.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-    # --- 2.6 TRẢ VỀ DỮ LIỆU ĐÃ XỬ LÝ ---
+    # TRẢ VỀ DỮ LIỆU ĐÃ XỬ LÝ 
     return df
