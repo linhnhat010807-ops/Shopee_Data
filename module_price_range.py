@@ -66,9 +66,7 @@ def main():
         category_price
     ) = result
 
-    # =========================
     # IN KẾT QUẢ
-    # =========================
 
     print("===== TỔNG QUAN DỮ LIỆU =====")
     print("Số lượng sản phẩm:", total_products)
@@ -88,10 +86,8 @@ def main():
 
     print("\n===== TOP DANH MỤC CÓ GIÁ TRUNG BÌNH CAO =====")
     print(category_price)
-
-    # =========================
+    
     # BIỂU ĐỒ 1
-    # =========================
 
     plt.figure(figsize=(10, 6))
     category_count.head(10).sort_values().plot(kind="barh")
@@ -101,9 +97,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    # =========================
     # BIỂU ĐỒ 2
-    # =========================
 
     plt.figure(figsize=(8, 5))
     price_count.plot(kind="bar")
@@ -114,9 +108,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    # =========================
     # BIỂU ĐỒ 3
-    # =========================
 
     plt.figure(figsize=(8, 5))
     plt.hist(df["price_actual"], bins=30)
@@ -126,9 +118,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    # =========================
     # BIỂU ĐỒ 4
-    # =========================
 
     plt.figure(figsize=(10, 6))
     category_price.sort_values().plot(kind="barh")
