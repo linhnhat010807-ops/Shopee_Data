@@ -5,10 +5,7 @@ Phân tích hành vi khách hàng - Shopee data
 - Top sản phẩm được đánh giá nhiều nhất (total_rating cao)
 - Top sản phẩm bán chạy nhất (total_sold cao)
 - Mối quan hệ giữa rating và lượt bán (correlation + scatter)
-- Trực quan hóa thành biểu đồ, lưu vào thư mục outputs/
-
-Cách chạy:
-    python analysis.py
+- Trực quan hóa thành biểu đồ, lưu vào thư mục outputs
 """
 
 import os
