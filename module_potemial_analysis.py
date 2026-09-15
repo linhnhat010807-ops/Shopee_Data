@@ -19,25 +19,25 @@ try:
     import module_price_range
     HAS_PRICE_RANGE = True
 except ImportError:
-    print("⚠️  Chưa thấy file 'module_price_range.py' - Sẽ sử dụng hàm tự động dự phòng.")
+    print("Chưa thấy file 'module_price_range.py' - Sẽ sử dụng hàm tự động dự phòng.")
 
 try:
     import module_rating_sold
     HAS_RATING_SOLD = True
 except ImportError:
-    print("⚠️  Chưa thấy file 'module_rating_sold.py' - Sẽ sử dụng hàm tự động dự phòng.")
+    print("Chưa thấy file 'module_rating_sold.py' - Sẽ sử dụng hàm tự động dự phòng.")
 
 try:
     import module_category_time
     HAS_CATEGORY_TIME = True
 except ImportError:
-    print("⚠️  Chưa thấy file 'module_category_time.py' - Sẽ sử dụng hàm tự động dự phòng.")
+    print("Chưa thấy file 'module_category_time.py' - Sẽ sử dụng hàm tự động dự phòng.")
 
 try:
     import module_discount
     HAS_DISCOUNT = True
 except ImportError:
-    print("⚠️  Chưa thấy file 'module_discount.py' - Sẽ sử dụng hàm tự động dự phòng.")
+    print("Chưa thấy file 'module_discount.py' - Sẽ sử dụng hàm tự động dự phòng.")
 
 # Cấu hình font tiếng Việt an toàn cho Matplotlib
 plt.rcParams['font.sans-serif'] = ['Segoe UI', 'Arial', 'DejaVu Sans']
@@ -231,7 +231,7 @@ def main():
     print("=" * 70)
 
     df = load_and_integrate_all_modules(DATA_PATH)
-    print(f"✔ Đã tích hợp thành công dữ liệu từ các mô-đun: {len(df):,} bản ghi.")
+    print(f"Đã tích hợp thành công dữ liệu từ các mô-đun: {len(df):,} bản ghi.")
 
     df = calculate_potential_score(df)
 
@@ -242,10 +242,10 @@ def main():
     valid_cols = [c for c in output_cols if c in df.columns]
     
     top_50[valid_cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
-    print(f"✔ Đã xuất file Top 50 sản phẩm tiềm năng tại: {csv_path}")
+    print(f"Đã xuất file Top 50 sản phẩm tiềm năng tại: {csv_path}")
 
     visualize_integrated_analysis(df)
-    print("✔ Hoàn thành phân tích tổng hợp!")
+    print("Hoàn thành phân tích tổng hợp!")
 
 if __name__ == "__main__":
     main()
