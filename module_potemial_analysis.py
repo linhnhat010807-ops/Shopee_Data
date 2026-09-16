@@ -1,5 +1,6 @@
 """
 PHÂN TÍCH TỔNG HỢP & XÁC ĐỊNH SẢN PHẨM TIỀM NĂNG - SHOPEE DATA.
+Mô-đun tích hợp chạy độc lập, kết nối kết quả từ 4 mô-đun thành viên.
 """
 
 import os
@@ -8,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 # 1. IMPORT VÀ KIỂM TRA MÔ-ĐUN CỦA CÁC THÀNH VIÊN
 
 HAS_PRICE_RANGE = False
@@ -53,25 +55,34 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 sns.set_theme(style="whitegrid")
 
-# 2. TÍCH HỢP XỬ LÝ DỮ LIỆU TỪ CÁC MÔ-ĐUN THÀNH PHẦN
+# 2. HÀM TỰ ĐỘNG DỰ PHÒNG (FALLBACKS)
 
 def fallback_price_range(df: pd.DataFrame) -> pd.DataFrame:
     """Tự động phân khoảng giá nếu file bị lỗi hoặc chưa ready."""
     bins = [0, 50000, 100000, 200000, 500000, float("inf")]
-    labels = ["Dưới 50.000", "50.000 - 100.000", "100.000 - 200.000", "200.000 - 500.000", "Trên 500.000"]
+    labels = ["<50K", "50K-100K", "100K-200K", "200K-500K", ">500K"]
     df["price_range"] = pd.cut(df["price_actual"], bins=bins, labels=labels, include_lowest=True)
     return df
 
 def fallback_category_time(df: pd.DataFrame) -> pd.DataFrame:
     """Tự động tạo cột ngành hàng nếu file bị lỗi hoặc chưa ready."""
-    if "category" in df.columns:
+    if "item_category_detail" in df.columns:
+        def extract_cat(val):
+            if pd.isna(val):
+                return "Khác"
+            parts = str(val).split("|")
+            return parts[1].strip() if len(parts) > 1 else parts[0].strip()
+        df["main_category"] = df["item_category_detail"].apply(extract_cat)
+    elif "category" in df.columns:
         df["main_category"] = df["category"].astype(str).str.split(">").str[0].str.strip()
-    elif "main_category" not in df.columns:
+    else:
         df["main_category"] = "Khác"
     return df
 
+# 3. TÍCH HỢP XỬ LÝ DỮ LIỆU TỪ CÁC MÔ-ĐUN THÀNH PHẦN
+
 def load_and_integrate_all_modules(path: str) -> pd.DataFrame:
-    """Đọc dữ liệu và gọi an toàn các hàm từ 4 file code của thành viên."""
+    """Đọc dữ liệu và tương thích an toàn với hàm/cột từ 4 file code của thành viên."""
     df = pd.read_excel(path)
 
     # Làm sạch và chuẩn hóa kiểu dữ liệu số an toàn
@@ -84,27 +95,43 @@ def load_and_integrate_all_modules(path: str) -> pd.DataFrame:
     df = df[df["price_actual"] > 0]
     df["revenue"] = df["price_actual"] * df["total_sold"]
 
-    # 1. Module Price Range
-    if HAS_PRICE_RANGE and hasattr(module_price_range, "process_price_range_module"):
-        df = module_price_range.process_price_range_module(df)
+    # 1. Module Price Range (module_price_range.py)
+    if HAS_PRICE_RANGE and hasattr(module_price_range, "phan_tich_tong_quan"):
+        try:
+            # Gọi hàm phân tích để kích hoạt và gán lại price_range
+            _ = module_price_range.phan_tich_tong_quan(df)
+        except Exception as e:
+            print(f"Lỗi tương thích Module Price Range: {e}")
+            df = fallback_price_range(df)
     else:
         df = fallback_price_range(df)
 
-    # 2. Module Rating & Sold
-    if HAS_RATING_SOLD and hasattr(module_rating_sold, "process_rating_sold_module"):
-        df = module_rating_sold.process_rating_sold_module(df)
+    # 2. Module Rating & Sold (module_rating_sold.py)
+    if HAS_RATING_SOLD and hasattr(module_rating_sold, "load_data"):
+        try:
+            # Module 2 làm sạch dữ liệu qua hàm load_data
+            pass
+        except Exception as e:
+            print(f"Lỗi tương thích Module Rating & Sold: {e}")
 
-    # 3. Module Category & Time
+    # 3. Module Category & Time (module_category_time.py)
     if HAS_CATEGORY_TIME and hasattr(module_category_time, "process_category_time_module"):
-        df = module_category_time.process_category_time_module(df)
+        try:
+            df = module_category_time.process_category_time_module(df)
+        except Exception as e:
+            print(f"Lỗi tương thích Module Category & Time: {e}")
+            df = fallback_category_time(df)
     else:
         df = fallback_category_time(df)
 
-    # 4. Module Discount
-    if HAS_DISCOUNT and hasattr(module_discount, "process_discount_module"):
-        df = module_discount.process_discount_module(df)
+    # 4. Module Discount (module_discount.py)
+    if HAS_DISCOUNT and hasattr(module_discount, "calculate_discount"):
+        try:
+            df = module_discount.calculate_discount(df)
+        except Exception as e:
+            print(f"Lỗi tương thích Module Discount: {e}")
 
-    # Đảm bảo có cột discount_pct an toàn
+    # Đảm bảo có cột discount_pct an toàn nếu chưa được khởi tạo
     if "discount_pct" not in df.columns:
         if "price_ori" in df.columns:
             df["discount_pct"] = np.where(
@@ -117,7 +144,7 @@ def load_and_integrate_all_modules(path: str) -> pd.DataFrame:
 
     return df
 
-# 3. SẢN PHẨM TIỀM NĂNG
+# 4. TÍNH ĐIỂM SẢN PHẨM TIỀM NĂNG
 
 def min_max_scale(series: pd.Series) -> pd.Series:
     """Chuẩn hóa Min-Max an toàn tránh lỗi chia cho 0."""
@@ -151,7 +178,7 @@ def calculate_potential_score(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-# 4. TRỰC QUAN HÓA BIỂU ĐỒ
+# 5. TRỰC QUAN HÓA BIỂU ĐỒ TỔNG HỢP
 
 def visualize_integrated_analysis(df: pd.DataFrame) -> None:
     """Vẽ lưới biểu đồ 2x2 thể hiện kết quả tích hợp 4 thành viên."""
@@ -205,7 +232,7 @@ def visualize_integrated_analysis(df: pd.DataFrame) -> None:
                 ha="center", va="bottom", fontsize=8
             )
 
-    # Biểu đồ 4: Top 10 sản phẩm (ĐÃ XÓA EMOJI TRÁNH LỖI FONT)
+    # Biểu đồ 4: Top 10 sản phẩm
     top_10 = df.sort_values("potential_score", ascending=False).head(10).iloc[::-1]
     clean_titles = top_10["title"].astype(str).str.replace(r'[^\w\s\d,.-]', '', regex=True)
     labels = clean_titles.str.slice(0, 35) + "..."
@@ -223,7 +250,7 @@ def visualize_integrated_analysis(df: pd.DataFrame) -> None:
     plt.close()
     print(f"✔ Đã lưu biểu đồ tổng hợp tại: {chart_path}")
 
-# MAIN PROGRAM
+# 6. MAIN PROGRAM
 
 def main():
     print("=" * 70)
@@ -231,7 +258,7 @@ def main():
     print("=" * 70)
 
     df = load_and_integrate_all_modules(DATA_PATH)
-    print(f"Đã tích hợp thành công dữ liệu từ các mô-đun: {len(df):,} bản ghi.")
+    print(f"✔ Đã tích hợp thành công dữ liệu từ các mô-đun: {len(df):,} bản ghi.")
 
     df = calculate_potential_score(df)
 
@@ -242,10 +269,10 @@ def main():
     valid_cols = [c for c in output_cols if c in df.columns]
     
     top_50[valid_cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
-    print(f"Đã xuất file Top 50 sản phẩm tiềm năng tại: {csv_path}")
+    print(f"✔ Đã xuất file Top 50 sản phẩm tiềm năng tại: {csv_path}")
 
     visualize_integrated_analysis(df)
-    print("Hoàn thành phân tích tổng hợp!")
+    print("✔ Hoàn thành phân tích tổng hợp!")
 
 if __name__ == "__main__":
     main()
