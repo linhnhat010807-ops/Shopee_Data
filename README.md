@@ -16,13 +16,13 @@ Dự án phân tích dữ liệu bán hàng Shopee: xử lý dữ liệu, phân 
 
 ### 1. Phân khoảng giá & Tổng quan (`module_price_range.py`)
 - **Top 10 danh mục nhiều sản phẩm nhất:**
-  ![Nhiều sản phẩm](Screenshot_2026-09-13_134001.png)
+  ![Nhiều sản phẩm](Screenshot 2026-09-13 134001.png)
 - **Số lượng sản phẩm theo giá:**
-  ![Khoảng giá](Screenshot_2026-09-13_134020.png)
+  ![Khoảng giá](Screenshot 2026-09-13 134020.png)
 - **Phân bố giá bán thực tế của sản phẩm:**
-  ![Giá thực tế](Screenshot_2026-09-13_134038.png)
+  ![Giá thực tế](Screenshot 2026-09-13 134038.png)
 - **Top 10 danh mục có giá trung bình cao:**
-  ![Trung bình giá bán cao](Screenshot_2026-09-13_134049.png)
+  ![Trung bình giá bán cao](Screenshot 2026-09-13 134049.png)
 ---
 
 ### 2. Rating & Lượt bán (`module_rating_sold.py`)
