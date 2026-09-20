@@ -46,7 +46,7 @@ Dự án phân tích dữ liệu bán hàng Shopee: xử lý dữ liệu, phân 
   ![Xu hướng](03_xu_huong_luong_ban.png)
 - **Tỷ trọng:**
   ![Tỷ trọng Top 10 Danh mục](04_ty_trong_top_10_danh_muc.png)
-
+  
 ---
 
 ### 4. Mức giảm giá (%) & Ưu đãi (`module_discount.py`)
