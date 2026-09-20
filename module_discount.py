@@ -6,7 +6,7 @@ PHÂN TÍCH GIÁ VÀ KHUYẾN MÃI - Dữ liệu Shopee
 3. Phân tích mối liên hệ giữa % giảm giá và số lượng bán (total_sold)
 4. Trực quan hóa: 1 lưới 4 biểu đồ tổng quan + 1 ma trận tương quan (heatmap)
 """
- 
+import os 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +15,8 @@ from scipy import stats
  
 sns.set_theme(style="whitegrid")
  
-FILE_PATH = "shopee_data_clean.xlsx"   
+FILE_PATH = r"C:\Users\DUYMANH\Downloads\hocc\FirstProjectPython\SQL\Lab2\lab2_1\shopee_data_clean.xlsx"   
+OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
  
 # HÀM 1: ĐỌC DỮ LIỆU
 def load_data(file_path):
@@ -90,6 +91,7 @@ def analyze_discount_vs_sold(df):
 def plot_overview(df, group_stats, corr_spearman,
                    output_file="bieu_do_tong_quan_gia_khuyenmai.png"):
     """Vẽ lưới 2x2: phân phối giá, phân phối % giảm giá, scatter, bar chart."""
+    output_file = os.path.join(OUTPUT_DIR, output_file)
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
  
     # (1) Phân phối giá gốc vs giá thực tế (thang log để dễ nhìn vì giá lệch mạnh)
@@ -98,7 +100,7 @@ def plot_overview(df, group_stats, corr_spearman,
     log_price_actual = np.log1p(df["price_actual"])
     ax.hist(log_price_ori, bins=40, alpha=0.55, label="Giá gốc (price_ori)", color="#e74c3c")
     ax.hist(log_price_actual, bins=40, alpha=0.55, label="Giá thực tế (price_actual)", color="#3498db")
-    ax.set_title("Phân phối giá gốc vs giá thực tế (thang log)")
+    ax.set_title("Phân phối giá gốc vs giá thực tế")
     ax.set_xlabel("Mức giá (Đã điều chỉnh)")
     ax.set_ylabel("Số lượng sản phẩm")
     ax.legend()
@@ -117,7 +119,7 @@ def plot_overview(df, group_stats, corr_spearman,
     ax = axes[1, 0]
     ax.scatter(df["discount_pct"], df["total_sold"], alpha=0.25, s=10, color="#8e44ad")
     ax.set_yscale("log")
-    ax.set_title(f"% giảm giá vs Lượng bán (trục y log)\nr = {corr_spearman:.2f}")
+    ax.set_title(f"% giảm giá vs Lượng bán\nr = {corr_spearman:.2f}")
     ax.set_xlabel("% giảm giá")
     ax.set_ylabel("Total sold (log scale)")
  
@@ -142,6 +144,7 @@ def plot_overview(df, group_stats, corr_spearman,
 # HÀM 6: VẼ MA TRẬN TƯƠNG QUAN (HEATMAP)
 def plot_correlation_matrix(df, output_file="bieu_do_ma_tran_tuong_quan.png"):
     """Tính và vẽ ma trận tương quan Spearman giữa các biến chính."""
+    output_file = os.path.join(OUTPUT_DIR, output_file)
     df["log_total_sold"] = np.log1p(df["total_sold"])
  
     corr_cols = ["price_ori", "price_actual", "discount_amount", "discount_pct",
@@ -184,6 +187,3 @@ def main():
 if __name__ == "__main__":
     main()
  
-
-
-
