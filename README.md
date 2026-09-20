@@ -8,8 +8,6 @@ Dự án phân tích dữ liệu bán hàng Shopee: xử lý dữ liệu, phân 
 ## 📁 Dữ liệu & Script Tiền Xử Lý
 - **File dữ liệu gốc/đã làm sạch:** `shopee_data_clean.xlsx`
 - **Script làm sạch dữ liệu:** `data_clean.py`
-- **Script chỉnh sửa dữ liệu:** `edit_data`
-- **Script hiển thị dữ liệu dạng bảng:** `hien_thi_bang.py`
 ---
 
 ## 🛠️ Các Module Phân Tích & Biểu Đồ Trực Quan
